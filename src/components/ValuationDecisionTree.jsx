@@ -24,6 +24,7 @@ import {
   Boxes,
   Building2,
   TrendingUp,
+  X, // NEW: close icon
 } from "lucide-react";
 import dagre from "dagre";
 import "katex/dist/katex.min.css";
@@ -285,7 +286,7 @@ const initialNodesData = [
     "lbo",
     "LBO Back‑Solve",
     "option",
-    "Solve\;P:\;IRR_{equity}=Target",
+    "Solve\\;P:\\;IRR_{equity}=Target",
     [
       bullet("P = max purchase price"),
       bullet("IRR_{equity} = equity IRR"),
@@ -301,7 +302,7 @@ const initialNodesData = [
     "option",
     "Real Options",
     "option",
-    "V = S\,N(d_1) - Ke^{-rT}N(d_2)",
+    "V = S\\,N(d_1) - Ke^{-rT}N(d_2)",
     [
       bullet("S = PV of underlying asset"),
       bullet("K = investment cost (exercise price)"),
@@ -314,7 +315,6 @@ const initialNodesData = [
       bullet("Volatility input hard to estimate"),
       bullet("Complex models can obscure key drivers"),
     ].join("\n")
-  
   ),
 ];
 
@@ -372,6 +372,11 @@ export default function ValuationDecisionTree() {
     []
   );
 
+  const clearSelection = useCallback(() => {
+    setSelectedNodeData(null);
+    setNodes((nds) => nds.map((n) => ({ ...n, data: { ...n.data, selected: false } })));
+  }, [setNodes]);
+
   const onNodeClick = useCallback((_, node) => {
     if (node?.data?.nodeKind === "model") {
       setNodes((nds) =>
@@ -382,12 +387,9 @@ export default function ValuationDecisionTree() {
       );
       setSelectedNodeData(node.data);
     } else {
-      setNodes((nds) =>
-        nds.map((n) => ({ ...n, data: { ...n.data, selected: false } }))
-      );
-      setSelectedNodeData(null);
+      clearSelection();
     }
-  }, []);
+  }, [clearSelection]);
 
   return (
     <div className="h-full w-full relative bg-slate-50">
@@ -410,9 +412,19 @@ export default function ValuationDecisionTree() {
       {selectedNodeData && (
         <Card className="fixed top-4 right-4 w-[28rem] max-h-[90vh] overflow-y-auto shadow-xl bg-white/90 backdrop-blur-md border-gray-300 animate-in fade-in slide-in-from-top duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 text-slate-800">
-              {categoryIcon[selectedNodeData.category]} {selectedNodeData.label}
-            </CardTitle>
+            <div className="flex justify-between items-start gap-2">
+              <CardTitle className="flex items-center gap-3 text-slate-800">
+                {categoryIcon[selectedNodeData.category]} {selectedNodeData.label}
+              </CardTitle>
+              {/* NEW: Close button */}
+              <button
+                onClick={clearSelection}
+                aria-label="Close description"
+                className="p-1 rounded-md hover:bg-slate-200 transition"
+              >
+                <X size={18} className="text-slate-600" />
+              </button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3 text-slate-700">
             <BlockMath math={selectedNodeData.formula} />
