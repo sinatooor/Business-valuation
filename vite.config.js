@@ -10,3 +10,5 @@ export default defineConfig({
     },
   },
 });
+
+// This configuration file sets up Vite for a React project, enabling React support and defining an alias for easier imports.
